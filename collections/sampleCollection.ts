@@ -1,4 +1,4 @@
-/// <refrence path="tsd.d.ts" />
+/// <refrence path="../typings/tsd.d.ts" />
 
 export interface ISampleCollection {
 	_id?: Mongo.ObjectID;

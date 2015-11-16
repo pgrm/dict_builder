@@ -1,13 +1,16 @@
-/// <reference path="tsd.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 
 import {Component, View} from 'angular2/angular2';
 import {bootstrap} from 'angular2-meteor';
+import {AccountsUI} from 'meteor-accounts-ui'
+import {GravatarDirective} from 'client/helpers/gravatar-directive';
 
 @Component({
-    selector: 'app'
+  selector: 'app'
 })
 @View({
-    templateUrl: '/client/app.html'
+  templateUrl: '/client/app.html',
+  directives: [AccountsUI, GravatarDirective]
 })
 class DictBuilder { }
 

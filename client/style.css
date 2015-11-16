@@ -40,7 +40,6 @@ html, body {
   flex-direction: column;
   justify-content: flex-end;
   padding: 16px;
-  height: 151px;
 }
 .dict-builder-avatar-dropdown {
   display: flex;

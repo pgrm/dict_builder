@@ -1,4 +1,4 @@
-/// <reference path="tsd.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 
 import {SampleCollection} from 'collections/sampleCollection';
 
