@@ -1,6 +1,8 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-import {SampleCollection} from 'collections/sampleCollection';
+import {pollyfillEverything} from 'lib/pollyfills'; pollyfillEverything();
+import {insertSampleProjects} from 'server/projects';
 
-Meteor.publish('sampleCollection', () => { SampleCollection.find(); });
-
+Meteor.startup(() => {
+  insertSampleProjects();
+});

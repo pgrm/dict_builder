@@ -4,4 +4,8 @@
 /// <reference path="meteor-accounts-ui.d.ts" />
 /// <reference path="es6-promise/es6-promise.d.ts" />
 /// <reference path="custom/gravatar.d.ts" />
+/// <reference path="custom/pollyfills.d.ts" />
+/// <reference path="custom/meteor-collection-hooks.d.ts" />
+/// <reference path="custom/meteor-simple-schema.d.ts" />
+/// <reference path="custom/meteor-collection2.d.ts" />
 

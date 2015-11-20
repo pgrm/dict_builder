@@ -29,23 +29,17 @@
       <accounts-ui></accounts-ui>
     </header>
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">home</i>Home</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">inbox</i>Inbox</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">delete</i>Trash</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">report</i>Spam</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">forum</i>Forums</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">flag</i>Updates</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">local_offer</i>Promos</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">shopping_cart</i>Purchases</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">people</i>Social</a>
+      <a class="mdl-navigation__link" [router-link]="['/Home']"><i class="material-icons" role="presentation">home</i>Home</a>
+      <projects-side-list></projects-side-list>
       <div class="mdl-layout-spacer"></div>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
+      <a class="mdl-navigation__link" [router-link]="['/About']"><i class="material-icons" role="presentation">help</i>About + FAQ</a>
+      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">report</i>Admin</a>
     </nav>
   </div>
   <main class="mdl-layout__content">
     <div class="page-content">
       <!-- Your content goes here -->
-      <h1>Hello World!</h1>
+      <router-outlet></router-outlet>
     </div>
   </main>
 </div>
