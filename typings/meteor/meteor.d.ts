@@ -23,6 +23,7 @@ declare module Match {
 	var undefined: any;
 	//function null();  // not allowed in TypeScript
 	var Object: any;
+  var Error: any;
 	function Optional(pattern: any):boolean;
 	function ObjectIncluding(dico: any):boolean;
 	function OneOf(...patterns: any[]): any;

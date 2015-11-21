@@ -45,6 +45,7 @@
 ul.mdl-card__subtitle-text {
   list-style-type: none;
   right: 0px;
+  padding-left: 0px;
   
   li {
     display: inline;
@@ -60,6 +61,18 @@ ul.mdl-card__subtitle-text {
 .mdl-card__title {
   justify-content: space-between;
 }
-a.mdl-cell, div.mdl-cell>a {
+a.mdl-card, div.mdl-card>a {
   text-decoration: none;
+}
+
+.mdl-card.new-item {
+  .mdl-card__title {
+    justify-content: center;
+  }
+  .mdl-card__supporting-text {
+    text-align: center;
+  }
+  .mdl-card__actions button {
+    width: 100%;
+  }
 }

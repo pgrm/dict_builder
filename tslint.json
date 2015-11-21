@@ -2,7 +2,7 @@
   "rules": {
     "align": [true, "parameters"],
     "class-name": true,
-    "comment-format": [true, "check-uppercase", "check-space"],
+    "comment-format": [true, "check-space"],
     "curly": true,
     "eofline": true,
     "forin": true,
@@ -54,10 +54,6 @@
     "radix": true,
     "semicolon": true,
     "triple-equals": [true, "allow-null-check"],
-    "variable-name": [true,
-      "check-format",
-      "allow-leading-underscore"
-    ],
     "whitespace": [true,
       "check-branch",
       "check-decl",

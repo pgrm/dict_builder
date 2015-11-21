@@ -6,7 +6,7 @@ import {Router} from 'angular2/router';
 import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
 import {LoggedInComponent} from 'client/helpers/logged-in-component';
-import {IProject, Projects, ProjectLogic} from 'models/projects';
+import {IProject, Projects, ProjectService} from 'models/projects';
 
 @Component({
   selector: 'projects-list'
@@ -26,7 +26,7 @@ export class ProjectsList extends LoggedInComponent {
   }
   
   public create() {
-    (<Promise<string>>ProjectLogic.create()).then((id) => {
+    (<Promise<string>>ProjectService.create()).then((id) => {
       this.router.navigate(['/Project', {projectId: id}]);
     });
   }

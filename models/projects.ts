@@ -1,20 +1,23 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-import {ServerMethodsBase, getCollectionOptions} from 'lib/domainHelpers';
+/* tslint:disable:no-use-before-declare */
+
+import {getCollectionOptions} from 'lib/domainHelpers';
+import {ServerMethod} from 'lib/decorators';
 
 export interface IProject {
   _id?: string;
   name: string;
   description?: string;
   members?: IProjectMember[];
-  
+
   delete?();
   create?();
 }
 
 export interface IProjectMember {
-	id: string;
-	role: string;
+  id: string;
+  role: string;
 }
 
 export const ProjectMemberRoles = ['admin', 'translator', 'contributor', 'guest'];
@@ -39,14 +42,14 @@ export const ProjectMemberRoleExplanations = {
     title: 'Guest',
     description: 'Only has read-only permissions.'
   }
-}
+};
 
 export const ProjectSchema = new SimpleSchema({
   'name': {
     type: String,
     label: 'Name',
     min: 1,
-    max: 50,
+    max: 50
   },
   'description': {
     type: String,
@@ -71,7 +74,7 @@ export const ProjectSchema = new SimpleSchema({
     label: 'Member-Role',
     allowedValues: ProjectMemberRoles
   }
-})
+});
 
 class Project implements IProject {
   _id: string;
@@ -80,25 +83,27 @@ class Project implements IProject {
   members: IProjectMember[];
 
   public delete() {
-    ProjectLogic.delete(this._id);
+    ProjectService.delete(this._id);
   }
 }
 
-class ProjectLogicMethods extends ServerMethodsBase {
+class ProjectLogicMethods {
+  @ServerMethod()
   public delete(projectId: string) {
     Projects.remove(projectId);
   }
-  
-  public create(name = 'New Project', description?): string|Promise<string> {
+
+  @ServerMethod()
+  public create(): string|Promise<string> {
     return Projects.insert({
-      name: name,
-      description: description
+      name: 'New Project',
+      description: 'Start translating your product Now!'
     });
   }
 }
 
 export const Projects = new Mongo.Collection<IProject>('projects', getCollectionOptions(Project));
-export const ProjectLogic = new ProjectLogicMethods();
+export const ProjectService = new ProjectLogicMethods();
 
 Projects.before.insert(function(userId, doc) {
   doc.members = [{id: userId, role: ProjectMemberRoleExplanations.admin.name}];
