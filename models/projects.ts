@@ -2,8 +2,9 @@
 
 /* tslint:disable:no-use-before-declare */
 
-import {getCollectionOptions} from 'lib/domainHelpers';
-import {ServerMethod} from 'lib/decorators';
+import {ServerMethodsBase} from 'lib/baseClasses';
+import {getCollectionOptions, ServerMethod} from 'lib/domainHelpers';
+import {TestDecorator} from 'lib/decorators';
 
 export interface IProject {
   _id?: string;
@@ -87,14 +88,18 @@ class Project implements IProject {
   }
 }
 
-class ProjectLogicMethods {
+class ProjectLogicMethods extends ServerMethodsBase {
   @ServerMethod()
   public delete(projectId: string) {
+    console.log(this);
+
     Projects.remove(projectId);
   }
 
   @ServerMethod()
   public create(): string|Promise<string> {
+    console.log(this);
+
     return Projects.insert({
       name: 'New Project',
       description: 'Start translating your product Now!'

@@ -1,131 +1,109 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+import {TypeChecksHelper} from 'lib/paramChecks';
+
 export function getTransformFunction(constructor: new () => any) {
   return function(item: any) {
     let ret = new constructor();
 
     Object.assign(ret, item);
     return ret;
-  }
+  };
 }
 
 export function getCollectionOptions(
   constructor: new () => any, additionalOptions?: { connection?: Object; idGeneration?: string; }) {
-  let ret: { connection?: Object, idGeneration?: string, transform?: Function } = additionalOptions || {};
+  let ret: {
+    connection?: Object,
+    idGeneration?: string,
+    transform?: Function
+  } = additionalOptions || {};
 
   ret.transform = getTransformFunction(constructor);
   return ret;
 }
 
-export abstract class ServerMethodsBase {
-  /**
-   * The id of the user that made this method call, or null if no user was logged in.
-   */
-  protected userId: string;
-  /**
-   * Access inside a method invocation. Boolean value, true if this invocation is a stub.
-   */
-  protected isSimulation: boolean;
-  /**
-   * Access inside a method invocation. The connection that this method was received on. 
-   * null if the method is not associated with a connection, eg. a server initiated method call.
-   */
-  protected connection: Meteor.Connection;
-  
-  /**
-   * Set the logged in user.
-   */
-  protected setUserId: (userId: string) => void;
-  /**
-   * Call inside a method invocation. Allow subsequent method from this client to begin running in a new fiber.
-   */
-  protected unblock: () => void;
+class ServerMethodHelper extends TypeChecksHelper {
+  private serverMethodName: string;
+  private originalFunction: Function;
 
-  private ignoreMethodNames = [
-    'constructor',
-    'registerAllMethods'
-  ];
-  private methodsHaveBeenRegistered: boolean = false;
+  constructor(
+    target: Object, methodName: string, descriptor: TypedPropertyDescriptor<Function>,
+    customMethodName?: string) {
 
-  constructor(protected className?: string, deferRegistration?: boolean) {
-    this.className = className || this._getClassName();
-
-    if (!this.className) {
-      throw new Error('Cannot define methods for undefined class name');
-    }
-    if (!deferRegistration) {
-      this.registerAllMethods();
-    }
+    super(target, methodName, descriptor);
+    this.serverMethodName = customMethodName || this.getServerMethodName();
+    this.originalFunction = descriptor.value;
   }
 
-  public registerAllMethods() {
-    if (this.methodsHaveBeenRegistered) {
-      throw new Error(`Cannot register the methods of ${this.className} a second time.`);
-    }
-    this.methodsHaveBeenRegistered = true;
-    const serverMethods: Object = {};
+  registerServerMethod() {
+    let serverMethod = {};
 
-    this._forAllPublicMethods((methodName) => {
-      const serverMethodName = this._getServerMethodName(methodName);
-
-      serverMethods[serverMethodName] = this[methodName];
-      if (Meteor.isClient) {
-        this[methodName] = function() {
-          let methodArgs: any = arguments;
-          
-          return new Promise((resolve, reject) => {
-            Meteor.apply(serverMethodName, methodArgs, null, (err, result) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve(result);
-              }
-            });
-          });
-        };
-      }
-    });
-    Meteor.methods(serverMethods);
+    serverMethod[this.serverMethodName] = this.createServerMethod();
+    Meteor.methods(serverMethod);
   }
 
-  private _forAllPublicMethods(action: (name: string) => void) {
-    for (let pName in this) {
-      let property = this[pName];
+  getCorrectDescriptor(): TypedPropertyDescriptor<Function> {
+    if (Meteor.isClient) {
+      this.descriptor.value = this.createProxyToServer();
+    }
+    return this.descriptor;
+  }
 
-      if ((typeof property) === 'function' && !this._isPrivateMethod(pName)) {
-        action(pName);
+  private createProxyToServer(): Function {
+    let serverMethodName = this.serverMethodName;
+
+    return function() {
+      let methodArgs: any = arguments;
+
+      // Meteor.call and Meteor.apply use callback function
+      // this way a promise is returned instead,
+      // which will eventaully resolve to the result of the method.
+      return new Promise((resolve, reject) => {
+        Meteor.apply(serverMethodName, methodArgs, null, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        });
+      });
+    };
+  }
+
+  private createServerMethod(): Function {
+    let paramCheckFunction = this.getParamCheckFunction();
+    let originalMethod = this.originalFunction;
+
+    return function() {
+      paramCheckFunction.apply(this, arguments);
+      return originalMethod.apply(this, arguments);
+    };
+  }
+
+  private getServerMethodName(): string {
+    return `_autoGenerated.${this.getClassName() }.${this.methodName}`;
+  }
+
+  private getClassName(): string {
+    if (this.target.constructor) {
+      const funcNameRegex = /function (.{1,})\(/;
+      let res = funcNameRegex.exec(this.target.constructor.toString());
+
+      if (res && res.length > 1) {
+        return res[1];
       }
     }
+    // else
+    return 'undefinedClassName';
   }
+}
 
-  protected _isPrivateMethod(methodName: string): boolean {
-    if (methodName && methodName.length > 0) {
-      if (methodName[0] === '$' || methodName[0] === '_') {
-        return true;
-      } else {
-        return this._shouldIgnoreMethod(methodName);
-      }
-    } else {
-      return true;
-    }
-  }
+export function ServerMethod(customMethodName?: string): MethodDecorator {
+  return (target: Object, methodName: string, descriptor: TypedPropertyDescriptor<Function>) => {
+    let helper = new ServerMethodHelper(target, methodName, descriptor, customMethodName);
 
-  protected _shouldIgnoreMethod(methodName: string): boolean {
-    return this.ignoreMethodNames.indexOf(methodName) !== -1;
-  }
-
-  private _getClassName(): string {
-    const funcNameRegex = /function (.{1,})\(/;
-    let res = funcNameRegex.exec(this.constructor.toString())
-
-    if (res && res.length > 1) {
-      return res[1];
-    } else {
-      return undefined;
-    }
-  }
-
-  private _getServerMethodName(methodName: string): string {
-    return `_autoGenerated.${this.className}.${methodName}`;
-  }
+    helper.registerServerMethod();
+    return helper.getCorrectDescriptor();
+  };
 }

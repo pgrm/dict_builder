@@ -523,7 +523,7 @@ declare module Match {
 declare module Meteor {
 	var Error: ErrorStatic;
 	interface ErrorStatic {
-		new(error: string, reason?: string, details?: string): Error;
+		new(error: string|number, reason?: string, details?: string): Error;
 	}
 	interface Error {
 		error: string;
