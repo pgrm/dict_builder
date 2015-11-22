@@ -1,5 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+import {AOPBase} from 'lib/aopBase';
+
 if (Meteor.isServer) {
   Meteor.npmRequire('reflect-metadata');
 }
@@ -25,14 +27,8 @@ export function CheckAny(errorMsg: string, ...patterns: any[]): ParameterDecorat
   };
 }
 
-export abstract class TypeChecksHelper {
-  constructor(
-    protected target: Object,
-    protected methodName: string,
-    protected descriptor: TypedPropertyDescriptor<Function>) {
-  }
-
-  protected getParamCheckFunction(): Function {
+export abstract class TypeChecksHelper extends AOPBase {
+  protected getBeforeMethod(): Function {
     let paramChecks = this.getParamChecks();
 
     return function() {

@@ -1,65 +1,68 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-export abstract class AOPBase {
-  public getMethodDecorator(): MethodDecorator {
-    return (
-      target: Object,
-      methodName: string,
-      descriptor: TypedPropertyDescriptor<Function>) => {
-      return this.getDescriptor(target, methodName, descriptor);
-    };
-  }
-
-  public getDescriptor(
+export function aop<T extends AOPBase>(constructor: () => T) {
+  return (
     target: Object,
     methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): TypedPropertyDescriptor<Function> {
+    descriptor: TypedPropertyDescriptor<Function>) => {
+    let tmp = constructor();
+    tmp.initialize(target, methodName, descriptor);
+    return tmp.getDescriptor();
+  };
+}
 
-    const beforeMethod = this.getBeforeMethod(target, methodName, descriptor);
-    const afterMethod = this.getaAfterMethod(target, methodName, descriptor);
-    const insteadMethod = this.getInsteadMethod(target, methodName, descriptor);
-    const exceptionHandler = this.getExceptionHandler(target, methodName, descriptor);
-    const finallyMethod = this.getFinallyMethod(target, methodName, descriptor);
+export function aopClass<T extends AOPBase>(constructor: new () => T) {
+  return aop(() => new constructor());
+}
+
+export abstract class AOPBase {
+  protected target: Object;
+  protected methodName: string;
+  protected descriptor: TypedPropertyDescriptor<Function>;
+  private descriptorAlreadyModified = false;
+
+  public initialize(
+    target: Object,
+    methodName: string,
+    descriptor: TypedPropertyDescriptor<Function>) {
+    this.target = target;
+    this.methodName = methodName;
+    this.descriptor = descriptor;
+  }
+
+  public getDescriptor(): TypedPropertyDescriptor<Function> {
+    if (this.descriptorAlreadyModified) { return this.descriptor; }
+    this.descriptorAlreadyModified = true;
+
+    const beforeMethod = this.getBeforeMethod();
+    const afterMethod = this.getaAfterMethod();
+    const insteadMethod = this.getInsteadMethod();
+    const exceptionHandler = this.getExceptionHandler();
+    const finallyMethod = this.getFinallyMethod();
 
     // only modify the descriptor if at least one method/handler has been defined
     if (beforeMethod || afterMethod || insteadMethod || exceptionHandler || finallyMethod) {
-      let origFunction = descriptor.value;
+      let origFunction = this.descriptor.value;
 
-      descriptor.value = AOPBase.getNewDescriptorValue(
-        beforeMethod, afterMethod, insteadMethod,
-        exceptionHandler, finallyMethod, origFunction);
+      this.descriptor.value = AOPBase.getNewDescriptorValue(
+        beforeMethod, (insteadMethod || origFunction), afterMethod,
+        exceptionHandler, finallyMethod);
     }
-    return descriptor;
+    return this.descriptor;
   }
 
-  protected getBeforeMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return undefined; }
-  protected getaAfterMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return undefined; }
-  protected getInsteadMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return undefined; }
-  protected getExceptionHandler(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return undefined; }
-  protected getFinallyMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return undefined; }
+  protected getBeforeMethod(): Function { return undefined; }
+  protected getaAfterMethod(): Function { return undefined; }
+  protected getInsteadMethod(): Function { return undefined; }
+  protected getExceptionHandler(): Function { return undefined; }
+  protected getFinallyMethod(): Function { return undefined; }
 
   private static getNewDescriptorValue(
     beforeMethod: Function,
+    mainMethod: Function,
     afterMethod: Function,
-    insteadMethod: Function,
     exceptionHandler: Function,
-    finallyMethod: Function,
-    origFunction: Function
+    finallyMethod: Function
   ): Function {
     return function() {
       const args = _.toArray(arguments);
@@ -67,7 +70,7 @@ export abstract class AOPBase {
 
       let ret: any;
       try {
-        ret = (insteadMethod || origFunction).apply(this, arguments);
+        ret = mainMethod.apply(this, arguments);
       } catch (ex) {
         AOPBase.handleException(exceptionHandler, this, args, ex);
       } finally {
@@ -112,33 +115,4 @@ export abstract class AOPBase {
     }
     return origRet;
   }
-}
-
-export abstract class AOPSimple extends AOPBase {
-  protected beforeMethod: Function;
-  protected afterMethod: Function;
-  protected insteadMethod: Function;
-  protected exceptionHandler: Function;
-  protected finallyMethod: Function;
-
-  protected getBeforeMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return this.beforeMethod; }
-  protected getaAfterMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return this.afterMethod; }
-  protected getInsteadMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return this.insteadMethod; }
-  protected getExceptionHandler(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return this.exceptionHandler; }
-  protected getFinallyMethod(
-    target: Object,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>): Function { return this.finallyMethod; }
 }

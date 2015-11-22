@@ -4,7 +4,7 @@
 
 import {ServerMethodsBase} from 'lib/baseClasses';
 import {getCollectionOptions, ServerMethod} from 'lib/domainHelpers';
-import {TestDecorator} from 'lib/decorators';
+import {LoginRequired} from 'lib/aop';
 
 export interface IProject {
   _id?: string;
@@ -22,7 +22,7 @@ export interface IProjectMember {
 }
 
 export const ProjectMemberRoles = ['admin', 'translator', 'contributor', 'guest'];
-export const ProjectMemberRoleExplanations = {
+export const ProjectMemberRolesExplanations = {
   admin: {
     name: 'admin',
     title: 'Administrator',
@@ -90,16 +90,16 @@ class Project implements IProject {
 
 class ProjectLogicMethods extends ServerMethodsBase {
   @ServerMethod()
+  @LoginRequired()
   public delete(projectId: string) {
-    console.log(this);
-
-    Projects.remove(projectId);
+    if (Roles.userIsInRole(this.userId, ProjectMemberRolesExplanations.admin.name, `_${projectId}`)) {
+      Projects.remove(projectId);
+    }
   }
 
   @ServerMethod()
+  @LoginRequired()
   public create(): string|Promise<string> {
-    console.log(this);
-
     return Projects.insert({
       name: 'New Project',
       description: 'Start translating your product Now!'
@@ -111,5 +111,9 @@ export const Projects = new Mongo.Collection<IProject>('projects', getCollection
 export const ProjectService = new ProjectLogicMethods();
 
 Projects.before.insert(function(userId, doc) {
-  doc.members = [{id: userId, role: ProjectMemberRoleExplanations.admin.name}];
+  doc.members = [{id: userId, role: ProjectMemberRolesExplanations.admin.name}];
+});
+
+Projects.after.insert(function(userId, doc) {
+  Roles.addUsersToRoles(userId, ProjectMemberRolesExplanations.admin.name, `_${doc._id}`);
 });

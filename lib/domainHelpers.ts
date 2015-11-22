@@ -25,27 +25,31 @@ export function getCollectionOptions(
 
 class ServerMethodHelper extends TypeChecksHelper {
   private serverMethodName: string;
-  private originalFunction: Function;
+  private descriptorHasBeenModified: boolean = false;
 
   constructor(
     target: Object, methodName: string, descriptor: TypedPropertyDescriptor<Function>,
     customMethodName?: string) {
-
-    super(target, methodName, descriptor);
+    super();
+    super.initialize(target, methodName, descriptor);
     this.serverMethodName = customMethodName || this.getServerMethodName();
-    this.originalFunction = descriptor.value;
   }
 
   registerServerMethod() {
+    if (this.descriptorHasBeenModified) {
+      throw new Error('The descriptor has already been modified. ' +
+        'Call registerServerMethod before calling getCorrectDescriptor');
+    }
     let serverMethod = {};
 
-    serverMethod[this.serverMethodName] = this.createServerMethod();
+    serverMethod[this.serverMethodName] = this.getDescriptor().value;
     Meteor.methods(serverMethod);
   }
 
   getCorrectDescriptor(): TypedPropertyDescriptor<Function> {
     if (Meteor.isClient) {
       this.descriptor.value = this.createProxyToServer();
+      this.descriptorHasBeenModified = true;
     }
     return this.descriptor;
   }
@@ -68,16 +72,6 @@ class ServerMethodHelper extends TypeChecksHelper {
           }
         });
       });
-    };
-  }
-
-  private createServerMethod(): Function {
-    let paramCheckFunction = this.getParamCheckFunction();
-    let originalMethod = this.originalFunction;
-
-    return function() {
-      paramCheckFunction.apply(this, arguments);
-      return originalMethod.apply(this, arguments);
     };
   }
 

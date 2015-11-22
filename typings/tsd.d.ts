@@ -6,6 +6,7 @@
 /// <reference path="custom/gravatar.d.ts" />
 /// <reference path="custom/meteor-collection-hooks.d.ts" />
 /// <reference path="custom/meteor-collection2.d.ts" />
+/// <reference path="custom/meteor-roles" />
 /// <reference path="custom/meteor-simple-schema.d.ts" />
 /// <reference path="custom/meteorhacks-npm.d.ts" />
 /// <reference path="custom/pollyfills.d.ts" />

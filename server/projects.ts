@@ -3,10 +3,6 @@ export * from 'models/projects';
 
 Meteor.publish('projects', function() {
   let me = <Subscription>this;
-  console.log(this);
-
-  console.log('userId-function: ' + Meteor.userId);
-
   let condition = { members: { $elemMatch: { id: me.userId } } };
 
   return Projects.find(condition);
