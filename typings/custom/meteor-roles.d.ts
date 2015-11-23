@@ -5,8 +5,6 @@
 // meteor package: alanning:roles
 
 declare module Roles {
-  type MongoObject = { _id: any }
-
   var GLOBAL_GROUP: string;
   var subscription: Subscription;
 
@@ -22,7 +20,7 @@ declare module Roles {
    */
   function addUsersToRoles(
     /** User id(s) or object(s) with an _id field */
-    users: string | MongoObject | string[] | MongoObject[],
+    users: string | Meteor.User | string[] | Meteor.User[],
     /** Name(s) of roles/permissions to add users to */
     roles: string | string[],
     /**
@@ -57,12 +55,12 @@ declare module Roles {
   /**
    * Retrieve users groups, if any
    */
-  function getGroupsForUser(user: string | MongoObject, role?: string): string[];
+  function getGroupsForUser(user: string | Meteor.User, role?: string): string[];
 
   /**
    * Retrieve users roles
    */
-  function getRolesForUser(user: string | MongoObject, group?: string): string[];
+  function getRolesForUser(user: string | Meteor.User, group?: string): string[];
 
   /**
    * Retrieve all users who are in target role.
@@ -85,7 +83,7 @@ declare module Roles {
    * Remove users from roles
    */
   function removeUsersFromRoles(
-    users: string | MongoObject | string[] | MongoObject[],
+    users: string | Meteor.User | string[] | Meteor.User[],
     roles: string | string[],
     group?: string);
 
@@ -93,7 +91,7 @@ declare module Roles {
    * Set a users roles/permissions.
    */
   function setUserRoles(
-    users: string | MongoObject | string[] | MongoObject[],
+    users: string | Meteor.User | string[] | Meteor.User[],
     roles: string | string[],
     group?: string);
 
@@ -101,7 +99,7 @@ declare module Roles {
    * Check if user has specified permissions/roles.
    */
   function userIsInRole(
-    users: string | MongoObject,
+    users: string | Meteor.User,
     /**
      * Name of role/permission or Array of roles/permissions to check against.
      * If array, will return true if user is in any role.

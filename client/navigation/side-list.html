@@ -1,4 +1,3 @@
-<a class="mdl-navigation__link" href="" *ng-if="isLoggedIn"><i class="material-icons" role="presentation">people</i>Users</a>
 <a class="mdl-navigation__link" [router-link]="['/ProjectList']" *ng-if="isLoggedIn">
   <i class="material-icons" role="presentation">forum</i>
   <span class="mdl-badge" [data-badge]="projects.count()">Projects</span>
@@ -6,3 +5,5 @@
 <a class="mdl-navigation__link subitem" *ng-for="#project of projects" [router-link]="['/Project', {projectId: project._id}]">
 	<i class="material-icons" role="presentation">flag</i>{{project.name}}
 </a>
+<a class="mdl-navigation__link" href="" *ng-if="isLoggedIn"><i class="material-icons" role="presentation">people</i>Users</a>
+<a class="mdl-navigation__link" href="" *ng-if="isRoot"><i class="material-icons" role="presentation">report</i>Admin</a>

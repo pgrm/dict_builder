@@ -1,26 +1,7 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
   <header class="mdl-layout__header">
     <div class="mdl-layout__header-row">
-      <span class="mdl-layout-title">Home</span>
-      <div class="mdl-layout-spacer"></div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
-                  mdl-textfield--floating-label mdl-textfield--align-right">
-        <label class="mdl-button mdl-js-button mdl-button--icon" for="fixed-header-drawer-exp">
-          <i class="material-icons">search</i>
-        </label>
-        <div class="mdl-textfield__expandable-holder">
-          <input class="mdl-textfield__input" type="text" name="sample" id="fixed-header-drawer-exp">
-        </div>
-      </div>
-      <!-- Template tho display search results maybe?
-      <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="hdrbtn">
-        <i class="material-icons">more_vert</i>
-      </button>
-      <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
-        <li class="mdl-menu__item">About</li>
-        <li class="mdl-menu__item">Contact</li>
-        <li class="mdl-menu__item">Legal information</li>
-      </ul>-->
+      <nav-header></nav-header>
     </div>
   </header>
   <div class="mdl-layout__drawer">
@@ -30,10 +11,9 @@
     </header>
     <nav class="mdl-navigation">
       <a class="mdl-navigation__link" [router-link]="['/Home']"><i class="material-icons" role="presentation">home</i>Home</a>
-      <projects-side-list></projects-side-list>
+      <side-list></side-list>
       <div class="mdl-layout-spacer"></div>
       <a class="mdl-navigation__link" [router-link]="['/About']"><i class="material-icons" role="presentation">help</i>About + FAQ</a>
-      <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">report</i>Admin</a>
     </nav>
   </div>
   <main class="mdl-layout__content">

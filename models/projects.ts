@@ -10,19 +10,13 @@ export interface IProject {
   _id?: string;
   name: string;
   description?: string;
-  members?: IProjectMember[];
+  members?: string[];
 
   delete?();
   create?();
 }
 
-export interface IProjectMember {
-  id: string;
-  role: string;
-}
-
-export const ProjectMemberRoles = ['admin', 'translator', 'contributor', 'guest'];
-export const ProjectMemberRolesExplanations = {
+export const ProjectRoles = {
   admin: {
     name: 'admin',
     title: 'Administrator',
@@ -45,6 +39,19 @@ export const ProjectMemberRolesExplanations = {
   }
 };
 
+export const ProjectContributorRoles = [
+  ProjectRoles.admin.name, ProjectRoles.translator.name, ProjectRoles.contributor.name
+];
+
+export const ProjectTranslatorRoles = [ProjectRoles.admin.name, ProjectRoles.translator.name];
+
+export const ValidProjectRoles = [
+  ProjectRoles.admin.name,
+  ProjectRoles.translator.name,
+  ProjectRoles.contributor.name,
+  ProjectRoles.guest.name
+];
+
 export const ProjectSchema = new SimpleSchema({
   'name': {
     type: String,
@@ -59,21 +66,16 @@ export const ProjectSchema = new SimpleSchema({
     optional: true
   },
   'members': {
-    type: [Object],
+    type: [String],
     label: 'Members',
     minCount: 1
   },
-  'members.$.id': {
+  'members.$': {
     type: String,
     label: 'Member-Id',
     min: 1,
     max: 50,
     denyUpdate: true
-  },
-  'members.$.role': {
-    type: String,
-    label: 'Member-Role',
-    allowedValues: ProjectMemberRoles
   }
 });
 
@@ -81,10 +83,26 @@ class Project implements IProject {
   _id: string;
   name: string;
   description: string;
-  members: IProjectMember[];
+  members: string[];
 
   public delete() {
     ProjectService.delete(this._id);
+  }
+
+  public addMember(memberId: string, role?: string) {
+    ProjectService.setUserRoleOnProject(memberId, this._id, (role || ProjectRoles.guest.name));
+  }
+
+  public removeMember(memberId: string) {
+    ProjectService.removeUserFromProject(memberId, this._id);
+  }
+
+  public changeRoleForMember(memberId: string, newRole: string) {
+    ProjectService.setUserRoleOnProject(memberId, this._id, newRole);
+  }
+
+  public save() {
+    ProjectService.updateTitleDescription(this._id, this.name, this.description);
   }
 }
 
@@ -92,18 +110,48 @@ class ProjectLogicMethods extends ServerMethodsBase {
   @ServerMethod()
   @LoginRequired()
   public delete(projectId: string) {
-    if (Roles.userIsInRole(this.userId, ProjectMemberRolesExplanations.admin.name, `_${projectId}`)) {
+    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
       Projects.remove(projectId);
     }
   }
 
   @ServerMethod()
   @LoginRequired()
-  public create(): string|Promise<string> {
-    return Projects.insert({
-      name: 'New Project',
-      description: 'Start translating your product Now!'
-    });
+  public createEmpty(): string | Promise<string> {
+    return ProjectService.create('New Project', 'Start translating your product Now!');
+  }
+
+  @ServerMethod()
+  @LoginRequired()
+  public create(name: string, description: string): string | Promise<string> {
+    return Projects.insert({ name: name, description: description });
+  }
+
+  @ServerMethod()
+  @LoginRequired()
+  public setUserRoleOnProject(userId: string, projectId: string, role: string) {
+    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
+      Projects.update({ _id: projectId }, { $addToSet: { members: userId } });
+      Roles.addUsersToRoles(userId, role, `_${projectId}`);
+      Roles.removeUsersFromRoles(userId, _.without(ValidProjectRoles, role), `_${projectId}`);
+    }
+  }
+
+  @ServerMethod()
+  @LoginRequired()
+  public removeUserFromProject(userId: string, projectId: string) {
+    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
+      Projects.update({ _id: projectId }, { $pullAll: { members: userId } });
+      Roles.removeUsersFromRoles(userId, ValidProjectRoles, `_${projectId}`);
+    }
+  }
+
+  @ServerMethod()
+  @LoginRequired()
+  public updateTitleDescription(projectId: string, title: string, description: string) {
+    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
+      Projects.update({ _id: projectId }, { $set: { name: name, description: description } });
+    }
   }
 }
 
@@ -111,9 +159,9 @@ export const Projects = new Mongo.Collection<IProject>('projects', getCollection
 export const ProjectService = new ProjectLogicMethods();
 
 Projects.before.insert(function(userId, doc) {
-  doc.members = [{id: userId, role: ProjectMemberRolesExplanations.admin.name}];
+  doc.members = [userId];
 });
 
 Projects.after.insert(function(userId, doc) {
-  Roles.addUsersToRoles(userId, ProjectMemberRolesExplanations.admin.name, `_${doc._id}`);
+  Roles.addUsersToRoles(userId, ProjectRoles.admin.name, `_${doc._id}`);
 });

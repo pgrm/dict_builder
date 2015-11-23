@@ -4,6 +4,7 @@
 /// <reference path="meteor-accounts-ui.d.ts" />
 /// <reference path="es6-promise/es6-promise.d.ts" />
 /// <reference path="custom/gravatar.d.ts" />
+/// <reference path="custom/custom-meteor-additions.d.ts" />
 /// <reference path="custom/meteor-collection-hooks.d.ts" />
 /// <reference path="custom/meteor-collection2.d.ts" />
 /// <reference path="custom/meteor-roles" />
@@ -11,4 +12,5 @@
 /// <reference path="custom/meteorhacks-npm.d.ts" />
 /// <reference path="custom/pollyfills.d.ts" />
 /// <reference path="custom/reflect-metadata.d.ts" />
+/// <reference path="underscore/underscore.d.ts" />
 

@@ -1,31 +1,37 @@
-import {Projects, IProject, IProjectMember} from 'models/projects';
+/// <reference path="../typings/tsd.d.ts" />
+
+import {Projects, ProjectService} from 'models/projects';
 export * from 'models/projects';
 
 Meteor.publish('projects', function() {
   let me = <Subscription>this;
-  let condition = { members: { $elemMatch: { id: me.userId } } };
+  let projectIds = _.map(Roles.getGroupsForUser(me.userId), (role) => role.substr(1));
 
-  return Projects.find(condition);
+  return Projects.find({ _id: { $in: projectIds } });
 });
 
-export function insertSampleProjects() {
-  let numberOfProjects = Projects.find().count();
+Meteor.publish('project', function(projectId: string) {
+  check(projectId, String);
+  let me = <Subscription>this;
 
-  console.log(`${numberOfProjects} projects in the database`);
-
-  if (numberOfProjects === 0) {
-    let users = Meteor.users.find().fetch();
-    let members: IProjectMember[] = [];
-
-    users.forEach(usr => members.push({ id: usr._id, role: 'member' }));
-
-    let projects: IProject[] = [
-      { name: 'Project 1', members: members },
-      { name: 'Project 2', members: members },
-      { name: 'Project 3', members: members },
-      { name: 'Project 4', members: [] },
-      { name: 'Project 5', members: members }
-    ]
-    projects.forEach(p => Projects.insert(p));
+  if (_.contains(Roles.getGroupsForUser(me.userId), `_${projectId}`)) {
+    return Projects.find(projectId);
+  } else {
+    throw new Meteor.Error(403);
   }
+});
+
+function createDemoProject() {
+  ProjectService.create('Sample Project',
+    'This is your first sample project, ' +
+    'you can use it to translate a product. ' +
+    'You can have as many projects as you need, ' +
+    'one for each product or per component of a product.');
 }
+
+Accounts.onLogin(() => {
+  if (!Meteor.user().demoProjectCreated) {
+    createDemoProject();
+    Meteor.users.update({_id: Meteor.userId()}, {$set: {demoProjectCreated: true}});
+  }
+});
