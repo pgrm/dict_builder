@@ -29,7 +29,10 @@ export class ProjectDetails extends LoggedInComponent {
 
     this.autorun(() => {
       this.project = Projects.findOne(this.projectId);
-      navHeader.title = this.project.name;
+
+      if (this.project) {
+        navHeader.title = this.project.name;
+      }
     }, true);
   }
 

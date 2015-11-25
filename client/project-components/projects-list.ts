@@ -1,6 +1,6 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {Component, View, NgFor, NgIf} from 'angular2/angular2';
+import {Component, View, NgFor, NgIf, NgZone} from 'angular2/angular2';
 import {Router} from 'angular2/router';
 
 import {IProject, Projects, ProjectService} from 'models/projects';
@@ -20,7 +20,7 @@ import {NavHeaderService} from 'client/navigation/nav-header';
 export class ProjectsList extends LoggedInComponent {
   public projects: Mongo.Cursor<IProject>;
 
-  constructor(router: Router, navHeader: NavHeaderService) {
+  constructor(private zone: NgZone, router: Router, navHeader: NavHeaderService) {
     super(router);
 
     navHeader.title = 'Projects';
@@ -32,6 +32,7 @@ export class ProjectsList extends LoggedInComponent {
   public create() {
     (<Promise<string>>ProjectService.createEmpty()).then((id) => {
       this.router.navigate(['/Project', { projectId: id }]);
+      // this.zone.run(() => this.router.navigate(['/Project', { projectId: id }]));
     });
   }
 }

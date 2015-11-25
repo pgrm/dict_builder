@@ -1,8 +1,11 @@
 /// <reference path="../meteor/meteor.d.ts" />
 
-
 // repository: https://github.com/alanning/meteor-roles
 // meteor package: alanning:roles
+
+declare module Meteor {
+  var roles: Mongo.Collection<any>;
+}
 
 declare module Roles {
   var GLOBAL_GROUP: string;
