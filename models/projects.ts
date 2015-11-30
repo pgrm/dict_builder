@@ -36,28 +36,38 @@ class Project implements IProject {
   }
 }
 
-export class ProjectMethods extends ServerMethodsBase {
-  @ServerMethod()
+export class NewProject extends Project {
+  constructor() {
+    super();
+    this._id = Random.id();
+    this.name = 'New Project';
+    this.description = 'Start translating your product Now!';
+  }
+
+  public save() {
+    ProjectService.create(this._id, this.name, this.description);
+    return this._id;
+  }
+}
+
+class ProjectMethods extends ServerMethodsBase {
+  @ServerMethod('ProjectMethods')
   @LoginRequired()
   public delete(projectId: string) {
     if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
+      console.log('removing project');
       Projects.remove(projectId);
     }
   }
 
-  @ServerMethod()
+  @ServerMethod('ProjectMethods')
   @LoginRequired()
-  public createEmpty(): string | Promise<string> {
-    return ProjectMethods.insert('New Project', 'Start translating your product Now!');
+  public create(id: string, name: string, description: string) {
+    console.log('Running insert...');
+    console.log(Projects.insert({_id: id, name: name, description: description }));
   }
 
-  @ServerMethod()
-  @LoginRequired()
-  public create(name: string, description: string): string | Promise<string> {
-    return ProjectMethods.insert(name, description);
-  }
-
-  @ServerMethod()
+  @ServerMethod('ProjectMethods')
   @LoginRequired()
   public setUserRoleOnProject(userId: string, projectId: string, role: string) {
     if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
@@ -67,7 +77,7 @@ export class ProjectMethods extends ServerMethodsBase {
     }
   }
 
-  @ServerMethod()
+  @ServerMethod('ProjectMethods')
   @LoginRequired()
   public removeUserFromProject(userId: string, projectId: string) {
     if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
@@ -76,20 +86,16 @@ export class ProjectMethods extends ServerMethodsBase {
     }
   }
 
-  @ServerMethod()
+  @ServerMethod('ProjectMethods')
   @LoginRequired()
   public updateTitleDescription(projectId: string, title: string, description: string) {
     if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
       Projects.update({ _id: projectId }, { $set: { name: name, description: description } });
     }
   }
-
-  private static insert(name: string, description: string): string {
-    return Projects.insert({ name: name, description: description });
-  }
 }
 
-export const Projects = new Mongo.Collection<IProject>('projects', getCollectionOptions(Project));
+export const Projects = new Ground.Collection<IProject>('projects', getCollectionOptions(Project));
 export const ProjectService = new ProjectMethods();
 
 Projects.before.insert(function(userId, doc) {
@@ -98,4 +104,8 @@ Projects.before.insert(function(userId, doc) {
 
 Projects.after.insert(function(userId, doc) {
   Roles.addUsersToRoles(userId, ProjectRoles.admin.name, `_${doc._id}`);
+});
+
+Projects.after.remove(function(userId, oldProject) {
+  Roles.removeUsersFromRoles(oldProject.members, ValidProjectRoles, `_${oldProject._id}`);
 });

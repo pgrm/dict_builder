@@ -5,6 +5,7 @@
 /// <reference path="es6-promise/es6-promise.d.ts" />
 /// <reference path="custom/gravatar.d.ts" />
 /// <reference path="custom/custom-meteor-additions.d.ts" />
+/// <reference path="custom/ground-db.d.ts" />
 /// <reference path="custom/meteor-collection-hooks.d.ts" />
 /// <reference path="custom/meteor-collection2.d.ts" />
 /// <reference path="custom/meteor-roles" />

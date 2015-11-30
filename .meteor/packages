@@ -43,3 +43,8 @@ ejson
 #browser-policy  # TODO: this should be fixed to work later on
 underscore
 force-ssl
+meteorhacks:kadira
+appcache
+webapp
+ground:db
+random

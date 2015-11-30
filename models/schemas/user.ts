@@ -119,3 +119,4 @@ export const RoleSchema = new SimpleSchema({
 });
 
 Meteor.roles.attachSchema(RoleSchema);
+Ground.Collection(Meteor.users);

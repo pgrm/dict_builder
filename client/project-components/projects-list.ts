@@ -3,7 +3,7 @@
 import {Component, View, NgFor, NgIf, NgZone} from 'angular2/angular2';
 import {Router} from 'angular2/router';
 
-import {IProject, Projects, ProjectService} from 'models/projects';
+import {IProject, Projects, NewProject} from 'models/projects';
 
 import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
@@ -30,9 +30,9 @@ export class ProjectsList extends LoggedInComponent {
   }
 
   public create() {
-    (<Promise<string>>ProjectService.createEmpty()).then((id) => {
-      this.router.navigate(['/Project', { projectId: id }]);
-      // this.zone.run(() => this.router.navigate(['/Project', { projectId: id }]));
-    });
+    let project = new NewProject();
+    let id = project.save();
+
+    this.router.navigate(['/Project', { projectId: id }]);
   }
 }

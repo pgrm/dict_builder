@@ -1,6 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-import {Projects, ProjectService} from 'models/projects';
+import {Projects, NewProject} from 'models/projects';
 export * from 'models/projects';
 
 Meteor.publish('projects', function() {
@@ -22,11 +22,15 @@ Meteor.publish('project', function(projectId: string) {
 });
 
 function createDemoProject() {
-  ProjectService.create('Sample Project',
+  let project = new NewProject();
+
+  project.name = 'Sample Project';
+  project.description =
     'This is your first sample project, ' +
     'you can use it to translate a product. ' +
     'You can have as many projects as you need, ' +
-    'one for each product or per component of a product.');
+    'one for each product or per component of a product.';
+  project.save();
 }
 
 Accounts.onLogin(() => {

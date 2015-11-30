@@ -47,6 +47,10 @@ export const ValidProjectRoles = [
 ];
 
 export const ProjectSchema = new SimpleSchema<IProject>({
+  _id: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id
+  },
   name: {
     type: String,
     label: 'Name',

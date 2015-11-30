@@ -19,20 +19,33 @@ export abstract class AOPBase {
   protected target: Object;
   protected methodName: string;
   protected descriptor: TypedPropertyDescriptor<Function>;
+  protected originalFunction: Function;
   private descriptorAlreadyModified = false;
 
   public initialize(
     target: Object,
     methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>) {
+    descriptor: TypedPropertyDescriptor<Function> | Function) {
+
     this.target = target;
     this.methodName = methodName;
-    this.descriptor = descriptor;
+    if ((typeof descriptor) === 'function') {
+      this.originalFunction = <Function>descriptor;
+    } else {
+      this.descriptor = descriptor;
+    }
   }
 
   public getDescriptor(): TypedPropertyDescriptor<Function> {
     if (this.descriptorAlreadyModified) { return this.descriptor; }
     this.descriptorAlreadyModified = true;
+
+    this.descriptor.value = this.getInterceptedFunction();
+    return this.descriptor;
+  }
+
+  public getInterceptedFunction(originalFunction?: Function): Function {
+    let retFunction = originalFunction || this.originalFunction || this.descriptor.value;
 
     const beforeMethod = this.getBeforeMethod();
     const afterMethod = this.getaAfterMethod();
@@ -40,15 +53,13 @@ export abstract class AOPBase {
     const exceptionHandler = this.getExceptionHandler();
     const finallyMethod = this.getFinallyMethod();
 
-    // only modify the descriptor if at least one method/handler has been defined
+    // only modify the function if at least one method/handler has been defined
     if (beforeMethod || afterMethod || insteadMethod || exceptionHandler || finallyMethod) {
-      let origFunction = this.descriptor.value;
-
-      this.descriptor.value = AOPBase.getNewDescriptorValue(
-        beforeMethod, (insteadMethod || origFunction), afterMethod,
-        exceptionHandler, finallyMethod);
+      retFunction = AOPBase.getNewDescriptorValue(
+        beforeMethod, (insteadMethod || retFunction),
+        afterMethod, exceptionHandler, finallyMethod);
     }
-    return this.descriptor;
+    return retFunction;
   }
 
   protected getBeforeMethod(): Function { return undefined; }
