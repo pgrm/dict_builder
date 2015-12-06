@@ -1,10 +1,10 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-export function aop<T extends AOPBase>(constructor: () => T) {
-  return (
+export function aop<T extends AOPBase>(constructor: () => T): MethodDecorator {
+  return function (
     target: Object,
     methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>) => {
+    descriptor: TypedPropertyDescriptor<Function>) {
     let tmp = constructor();
     tmp.initialize(target, methodName, descriptor);
     return tmp.getDescriptor();
@@ -20,7 +20,6 @@ export abstract class AOPBase {
   protected methodName: string;
   protected descriptor: TypedPropertyDescriptor<Function>;
   protected originalFunction: Function;
-  private descriptorAlreadyModified = false;
 
   public initialize(
     target: Object,
@@ -37,11 +36,10 @@ export abstract class AOPBase {
   }
 
   public getDescriptor(): TypedPropertyDescriptor<Function> {
-    if (this.descriptorAlreadyModified) { return this.descriptor; }
-    this.descriptorAlreadyModified = true;
+    let newDescriptor = Object.assign({}, this.descriptor,
+      { value: this.getInterceptedFunction() });
 
-    this.descriptor.value = this.getInterceptedFunction();
-    return this.descriptor;
+    return newDescriptor;
   }
 
   public getInterceptedFunction(originalFunction?: Function): Function {

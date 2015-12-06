@@ -21,7 +21,7 @@ export class GravatarDirective extends MeteorComponent {
       if (user && user.emails && user.emails.length > 0) {
         let cleanEmail = Gravatar.cleanString(user.emails[0].address);
 
-        this.imageSrc = Gravatar.imageUrl(cleanEmail);
+        this.imageSrc = Gravatar.imageUrl(cleanEmail, {secure: true});
       } else {
         this.imageSrc = GravatarDirective.defaultImageSrc;;
       }

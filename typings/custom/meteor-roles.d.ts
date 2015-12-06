@@ -5,6 +5,10 @@
 
 declare module Meteor {
   var roles: Mongo.Collection<any>;
+
+  interface User {
+    
+  }
 }
 
 declare module Roles {

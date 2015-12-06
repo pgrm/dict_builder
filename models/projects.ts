@@ -2,14 +2,14 @@
 
 /* tslint:disable:no-use-before-declare */
 
-import {ServerMethodsBase} from 'lib/baseClasses';
-import {getCollectionOptions, ServerMethod} from 'lib/domainHelpers';
-import {LoginRequired} from 'lib/aop';
-import {IProject, ProjectRoles, ValidProjectRoles} from 'models/schemas/project';
+import {getCollectionOptions} from 'lib/domainHelpers';
+import {AutoServerMethods} from 'lib/autoDomainHelpers';
+import {RoleRequired} from 'lib/securityHelpers';
+import * as Schema from 'models/schemas/project';
 export * from 'models/schemas/project';
 export * from 'models/schemas/user';
 
-class Project implements IProject {
+class Project implements Schema.IProject {
   _id: string;
   name: string;
   description: string;
@@ -20,7 +20,8 @@ class Project implements IProject {
   }
 
   public addMember(memberId: string, role?: string) {
-    ProjectService.setUserRoleOnProject(memberId, this._id, (role || ProjectRoles.guest.name));
+    ProjectService.setUserRoleOnProject(
+      memberId, this._id, (role || Schema.ProjectRoles.guest.name));
   }
 
   public removeMember(memberId: string) {
@@ -50,52 +51,49 @@ export class NewProject extends Project {
   }
 }
 
-class ProjectMethods extends ServerMethodsBase {
-  @ServerMethod('ProjectMethods')
-  @LoginRequired()
+class ProjectMethods extends AutoServerMethods {
+  constructor() {
+    super('ProjectMethods');
+  }
+
+  @RoleRequired(Schema.ProjectRoles.admin.name, 0, '_')
   public delete(projectId: string) {
-    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
-      console.log('removing project');
-      Projects.remove(projectId);
-    }
+    Projects.remove(projectId);
   }
 
-  @ServerMethod('ProjectMethods')
-  @LoginRequired()
   public create(id: string, name: string, description: string) {
-    console.log('Running insert...');
-    console.log(Projects.insert({_id: id, name: name, description: description }));
+    Projects.insert({ _id: id, name: name, description: description });
   }
 
-  @ServerMethod('ProjectMethods')
-  @LoginRequired()
+  @RoleRequired(Schema.ProjectRoles.admin.name, 1, '_')
   public setUserRoleOnProject(userId: string, projectId: string, role: string) {
-    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
-      Projects.update({ _id: projectId }, { $addToSet: { members: userId } });
-      Roles.addUsersToRoles(userId, role, `_${projectId}`);
-      Roles.removeUsersFromRoles(userId, _.without(ValidProjectRoles, role), `_${projectId}`);
-    }
+    Projects.update({ _id: projectId }, { $addToSet: { members: userId } });
+    Roles.addUsersToRoles(userId, role, `_${projectId}`);
+    Roles.removeUsersFromRoles(userId, _.without(Schema.ValidProjectRoles, role), `_${projectId}`);
   }
 
-  @ServerMethod('ProjectMethods')
-  @LoginRequired()
+  @RoleRequired(Schema.ProjectRoles.admin.name, 1, '_')
   public removeUserFromProject(userId: string, projectId: string) {
-    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
-      Projects.update({ _id: projectId }, { $pullAll: { members: userId } });
-      Roles.removeUsersFromRoles(userId, ValidProjectRoles, `_${projectId}`);
-    }
+    Projects.update({ _id: projectId }, { $pullAll: { members: userId } });
+    // Remove group form user
+    Meteor.users.update(userId, ProjectService._getDeleteGroupModifier(`_${projectId}`));
   }
 
-  @ServerMethod('ProjectMethods')
-  @LoginRequired()
+  @RoleRequired(Schema.ProjectRoles.admin.name, 0, '_')
   public updateTitleDescription(projectId: string, title: string, description: string) {
-    if (Roles.userIsInRole(this.userId, ProjectRoles.admin.name, `_${projectId}`)) {
-      Projects.update({ _id: projectId }, { $set: { name: name, description: description } });
-    }
+    Projects.update({ _id: projectId }, { $set: { name: name, description: description } });
+  }
+
+  public _getDeleteGroupModifier(groupName: string) {
+    let unsetObject = {};
+
+    unsetObject[`roles.${groupName}`] = '';
+    return { $unset: unsetObject };
   }
 }
 
-export const Projects = new Ground.Collection<IProject>('projects', getCollectionOptions(Project));
+export const Projects =
+  new Ground.Collection<Schema.IProject>('projects', getCollectionOptions(Project));
 export const ProjectService = new ProjectMethods();
 
 Projects.before.insert(function(userId, doc) {
@@ -103,9 +101,12 @@ Projects.before.insert(function(userId, doc) {
 });
 
 Projects.after.insert(function(userId, doc) {
-  Roles.addUsersToRoles(userId, ProjectRoles.admin.name, `_${doc._id}`);
+  Roles.addUsersToRoles(userId, Schema.ProjectRoles.admin.name, `_${doc._id}`);
 });
 
 Projects.after.remove(function(userId, oldProject) {
-  Roles.removeUsersFromRoles(oldProject.members, ValidProjectRoles, `_${oldProject._id}`);
+  // Remove project group from users
+  Meteor.users.update(
+    {_id: {$in: oldProject.members}},
+    ProjectService._getDeleteGroupModifier(`_${oldProject._id}`));
 });

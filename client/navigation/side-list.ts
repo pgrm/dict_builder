@@ -1,7 +1,7 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
 import {Component, View, NgFor, NgIf} from 'angular2/angular2';
-import {MeteorComponent} from 'angular2-meteor';
+import {MeteorComponent} from 'client/helpers/baseComponents';
 
 import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
@@ -21,8 +21,12 @@ export class SideList extends MeteorComponent {
 
   constructor() {
     super();
-    this.subscribe('projects');
-    this.projects = Projects.find({}, { sort: { name: 1 } });
+    // this.subscribe('projects').then(() => {
+    //   this.projects = Projects.find({}, { sort: { name: 1 } });
+    // });
+    this.subscribe('projects', () => {
+      this.projects = Projects.find({}, { sort: { name: 1 } });
+    }, true);
 
     this.autorun(() => {
       // because Meteor.userId is reactive,
@@ -36,5 +40,13 @@ export class SideList extends MeteorComponent {
         this.isRoot = false;
       }
     }, true);
+  }
+
+  public get ProjectsCount() {
+    if (this.projects) {
+      return this.projects.count();
+    } else {
+      return 0;
+    }
   }
 }

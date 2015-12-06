@@ -7,7 +7,7 @@ import {IProject, Projects, NewProject} from 'models/projects';
 
 import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
-import {LoggedInComponent} from 'client/helpers/logged-in-component';
+import {LoggedInComponent} from 'client/helpers/baseComponents';
 import {NavHeaderService} from 'client/navigation/nav-header';
 
 @Component({
@@ -20,13 +20,18 @@ import {NavHeaderService} from 'client/navigation/nav-header';
 export class ProjectsList extends LoggedInComponent {
   public projects: Mongo.Cursor<IProject>;
 
-  constructor(private zone: NgZone, router: Router, navHeader: NavHeaderService) {
+  constructor(router: Router, navHeader: NavHeaderService) {
     super(router);
 
     navHeader.title = 'Projects';
 
-    this.subscribe('projects');
-    this.projects = Projects.find({}, { sort: { name: 1 } });
+    // this.subscribe('projects').then(() => {
+    //   this.projects = Projects.find({}, { sort: { name: 1 } });
+    // });
+
+    this.subscribe('projects', () => {
+      this.projects = Projects.find({}, { sort: { name: 1 } });
+    }, true);
   }
 
   public create() {

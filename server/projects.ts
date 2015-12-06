@@ -5,9 +5,8 @@ export * from 'models/projects';
 
 Meteor.publish('projects', function() {
   let me = <Subscription>this;
-  let projectIds = _.map(Roles.getGroupsForUser(me.userId), (role) => role.substr(1));
-
-  return Projects.find({ _id: { $in: projectIds } });
+  let condition = { members: me.userId };
+  return Projects.find(condition);
 });
 
 Meteor.publish('project', function(projectId: string) {
@@ -26,16 +25,16 @@ function createDemoProject() {
 
   project.name = 'Sample Project';
   project.description =
-    'This is your first sample project, ' +
-    'you can use it to translate a product. ' +
-    'You can have as many projects as you need, ' +
-    'one for each product or per component of a product.';
+  'This is your first sample project, ' +
+  'you can use it to translate a product. ' +
+  'You can have as many projects as you need, ' +
+  'one for each product or per component of a product.';
   project.save();
 }
 
 Accounts.onLogin(() => {
   if (!Meteor.user().demoProjectCreated) {
     createDemoProject();
-    Meteor.users.update({_id: Meteor.userId()}, {$set: {demoProjectCreated: true}});
+    Meteor.users.update({ _id: Meteor.userId() }, { $set: { demoProjectCreated: true } });
   }
 });

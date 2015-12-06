@@ -29,7 +29,7 @@ export function CheckAny(errorMsg: string, ...patterns: any[]): ParameterDecorat
 
 export abstract class TypeChecksHelper extends AOPBase {
   protected getBeforeMethod(): Function {
-    let paramChecks = this.getParamChecks();
+    const paramChecks = this.getParamChecks();
 
     return function() {
       for (let i = 0; i < paramChecks.length; i++) {

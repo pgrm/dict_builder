@@ -7,7 +7,7 @@ import {IProject, Projects} from 'models/projects';
 
 import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
-import {LoggedInComponent} from 'client/helpers/logged-in-component';
+import {LoggedInComponent} from 'client/helpers/baseComponents';
 import {NavHeaderService} from 'client/navigation/nav-header';
 
 @Component({
@@ -25,8 +25,12 @@ export class ProjectDetails extends LoggedInComponent {
     super(router);
     this.projectId = routeParams.get('projectId');
 
-    this.subscribe('project', this.projectId);
+    // this.subscribe('project', this.projectId).then(() => {
+    //   this.project = Projects.findOne(this.projectId);
+    //   navHeader.title = this.project.name;
+    // });
 
+    this.subscribe('project', this.projectId);
     this.autorun(() => {
       this.project = Projects.findOne(this.projectId);
 
