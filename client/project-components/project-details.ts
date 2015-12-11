@@ -1,6 +1,7 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {Component, View, NgFor, NgIf} from 'angular2/angular2';
+import {Component, View} from 'angular2/core';
+import {NgFor, NgIf} from 'angular2/common';
 import {Router, RouteParams} from 'angular2/router';
 
 import {IProject, Projects} from 'models/projects';

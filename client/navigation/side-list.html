@@ -1,9 +1,9 @@
-<a class="mdl-navigation__link" [router-link]="['/ProjectList']" *ng-if="isLoggedIn">
+<a class="mdl-navigation__link" [routerLink]="['/ProjectList']" *ngIf="isLoggedIn">
   <i class="material-icons" role="presentation">forum</i>
   <span class="mdl-badge" [data-badge]="ProjectsCount">Projects</span>
 </a>
-<a class="mdl-navigation__link subitem" *ng-for="#project of projects" [router-link]="['/Project', {projectId: project._id}]">
+<a class="mdl-navigation__link subitem" *ngFor="#project of projects" [routerLink]="['/Project', {projectId: project._id}]">
 	<i class="material-icons" role="presentation">flag</i>{{project.name}}
 </a>
-<a class="mdl-navigation__link" href="" *ng-if="isLoggedIn"><i class="material-icons" role="presentation">people</i>Users</a>
-<a class="mdl-navigation__link" href="" *ng-if="isRoot"><i class="material-icons" role="presentation">report</i>Admin</a>
+<a class="mdl-navigation__link" href="" *ngIf="isLoggedIn"><i class="material-icons" role="presentation">people</i>Users</a>
+<a class="mdl-navigation__link" href="" *ngIf="isRoot"><i class="material-icons" role="presentation">report</i>Admin</a>

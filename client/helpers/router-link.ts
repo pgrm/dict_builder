@@ -1,10 +1,10 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {Directive} from 'angular2/angular2';
+import {Directive} from 'angular2/core';
 import {RouterLink as BaseRouterLink, Router, Location} from 'angular2/router';
 
 @Directive({
-  selector: '[router-link]',
+  selector: '[routerLink]',
   inputs: ['routeParams: routerLink', 'target: target'],
   host: {
     '[attr.href]': 'visibleHref',

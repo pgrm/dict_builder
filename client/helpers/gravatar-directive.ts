@@ -1,6 +1,6 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {Directive} from 'angular2/angular2';
+import {Directive} from 'angular2/core';
 import {MeteorComponent} from 'angular2-meteor';
 
 @Directive({

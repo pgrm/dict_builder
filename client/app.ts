@@ -1,10 +1,18 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 import {pollyfillEverything} from 'lib/pollyfills'; pollyfillEverything();
-import {Component, View, NgFor, NgIf, provide, Title} from 'angular2/angular2';
-import {ROUTER_PROVIDERS, RouterOutlet, RouteConfig, APP_BASE_HREF, LocationStrategy, HashLocationStrategy} from 'angular2/router';
+import {Component, View, provide} from 'angular2/core';
+import {Title} from 'angular2/platform/browser';
+import {
+  ROUTER_PROVIDERS,
+  RouterOutlet,
+  RouteConfig,
+  // APP_BASE_HREF,
+  LocationStrategy,
+  HashLocationStrategy
+} from 'angular2/router';
 import {bootstrap} from 'angular2-meteor';
-import {AccountsUI} from 'meteor-accounts-ui'
+import {AccountsUI} from 'meteor-accounts-ui';
 
 import {HomeComponent} from 'client/home/home';
 import {AboutComponent} from 'client/home/about';

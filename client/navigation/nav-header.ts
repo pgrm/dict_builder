@@ -1,6 +1,8 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {Component, View, NgIf, Injectable, Title} from 'angular2/angular2';
+import {Component, View, Injectable} from 'angular2/core';
+import {NgIf} from 'angular2/common';
+import {Title} from 'angular2/platform/browser';
 
 @Injectable()
 export class NavHeaderService {

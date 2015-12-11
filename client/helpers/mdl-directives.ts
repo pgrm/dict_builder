@@ -1,12 +1,12 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {Directive} from 'angular2/angular2';
+import {Directive} from 'angular2/core';
 
 @Directive({
   selector: '[data-badge]',
-  inputs: ['badgeValue: dataBadge'],
+  inputs: ['badgeValue: data-badge'],
   host: {
-    '[attr.dataBadge]': 'badgeValue'
+    '[attr.data-badge]': 'badgeValue'
   }
 })
 export class MdlBadge {
