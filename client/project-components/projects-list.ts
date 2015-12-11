@@ -2,11 +2,10 @@
 
 import {Component, View} from 'angular2/core';
 import {NgFor, NgIf} from 'angular2/common';
-import {Router} from 'angular2/router';
+import {Router, RouterLink} from 'angular2/router';
 
 import {IProject, Projects, NewProject} from 'models/projects';
 
-import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
 import {LoggedInComponent} from 'client/helpers/baseComponents';
 import {NavHeaderService} from 'client/navigation/nav-header';

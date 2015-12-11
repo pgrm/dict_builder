@@ -6,8 +6,9 @@ import {Title} from 'angular2/platform/browser';
 import {
   ROUTER_PROVIDERS,
   RouterOutlet,
+  RouterLink,
   RouteConfig,
-  // APP_BASE_HREF,
+  APP_BASE_HREF,
   LocationStrategy,
   HashLocationStrategy
 } from 'angular2/router';
@@ -18,7 +19,6 @@ import {HomeComponent} from 'client/home/home';
 import {AboutComponent} from 'client/home/about';
 
 import {GravatarDirective} from 'client/helpers/gravatar-directive';
-import {RouterLink} from 'client/helpers/router-link';
 
 import {SideList} from 'client/navigation/side-list';
 import {NavHeader, NavHeaderService} from 'client/navigation/nav-header';
@@ -41,10 +41,15 @@ import {ProjectDetails} from 'client/project-components/project-details';
 ])
 class DictBuilder { }
 
-// use HashLocationStrategy until all the issues mentioned here have been resolved: https://github.com/Urigo/Meteor-Angular2/issues/26
-// bootstrap(DictBuilder, [ROUTER_PROVIDERS, provide(APP_BASE_HREF, { useValue: '/' })]);
+// use HashLocationStrategy until all the issues mentioned here have been resolved:
+// https://github.com/Urigo/Meteor-Angular2/issues/26
 bootstrap(DictBuilder, [
   ROUTER_PROVIDERS,
-  provide(LocationStrategy, { useClass: HashLocationStrategy }),
+  provide(APP_BASE_HREF, { useValue: '/' }),
   NavHeaderService, Title
 ]);
+// bootstrap(DictBuilder, [
+//   ROUTER_PROVIDERS,
+//   provide(LocationStrategy, { useClass: HashLocationStrategy }),
+//   NavHeaderService, Title
+// ]);

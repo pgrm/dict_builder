@@ -2,9 +2,9 @@
 
 import {Component, View} from 'angular2/core';
 import {NgFor, NgIf} from 'angular2/common';
+import {RouterLink} from 'angular2/router';
 import {MeteorComponent} from 'angular2-meteor';
 
-import {RouterLink} from 'client/helpers/router-link';
 import {MDL_COMMONS} from 'client/helpers/mdl-directives';
 import {IProject, Projects} from 'models/projects';
 
