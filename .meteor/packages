@@ -48,3 +48,17 @@ appcache
 webapp
 ground:db
 random
+
+
+constellation:console
+constellation:subscriptions
+constellation:autopublish
+constellation:session
+constellation:tiny
+constellation:position
+constellation:schema
+constellation:plugins
+constellation:dump-restore
+fermuch:stats.js
+lai:ddp-inspector
+fourquet:anti-gravity

@@ -23,7 +23,7 @@ export class GravatarDirective extends MeteorComponent {
 
         this.imageSrc = Gravatar.imageUrl(cleanEmail, {secure: true});
       } else {
-        this.imageSrc = GravatarDirective.defaultImageSrc;;
+        this.imageSrc = GravatarDirective.defaultImageSrc;
       }
     }, true);
   }
