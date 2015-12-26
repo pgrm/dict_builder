@@ -4,7 +4,7 @@
 
 import {getCollectionOptions} from 'lib/domainHelpers';
 import {AutoServerMethods} from 'lib/autoDomainHelpers';
-import {RoleRequired} from 'lib/securityHelpers';
+import {RoleRequired, ServerOnly} from 'lib/securityHelpers';
 import * as Schema from 'models/schemas/project';
 export * from 'models/schemas/project';
 export * from 'models/schemas/user';
@@ -14,14 +14,21 @@ class Project implements Schema.IProject {
   name: string;
   description: string;
   members: string[];
+  languages: Schema.IProjectLanguage[];
+  languagesOrder: string[];
+  deletedLanguages: string[];
 
   public delete() {
     ProjectService.delete(this._id);
   }
 
-  public addMember(memberId: string, role?: string) {
+  public addMember(memberId: string, role: string) {
     ProjectService.setUserRoleOnProject(
-      memberId, this._id, (role || Schema.ProjectRoles.guest.name));
+      memberId, this._id, role);
+  }
+
+  public addMemberByEmail(email: string, role: string) {
+    ProjectService.addUserByEmailToProject(email, this._id, role);
   }
 
   public removeMember(memberId: string) {
@@ -34,6 +41,11 @@ class Project implements Schema.IProject {
 
   public save() {
     ProjectService.updateTitleDescription(this._id, this.name, this.description);
+  }
+
+  public canUserSeeSettings(userId: string) {
+    const roles = Roles.getRolesForUser(userId, `_${this._id}`);
+    return _.intersection(roles, Schema.ProjectTranslatorRoles).length > 0;
   }
 }
 
@@ -70,6 +82,12 @@ class ProjectMethods extends AutoServerMethods {
     Projects.update({ _id: projectId }, { $addToSet: { members: userId } });
     Roles.addUsersToRoles(userId, role, `_${projectId}`);
     Roles.removeUsersFromRoles(userId, _.without(Schema.ValidProjectRoles, role), `_${projectId}`);
+  }
+
+  @ServerOnly()
+  @RoleRequired(Schema.ProjectRoles.admin.name, 1, '_')
+  public addUserByEmailToProject(email: string, projectId: string, role: string) {
+    console.log('should be seen only on server');
   }
 
   @RoleRequired(Schema.ProjectRoles.admin.name, 1, '_')

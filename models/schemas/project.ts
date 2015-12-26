@@ -1,13 +1,22 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
+export interface IProjectLanguage {
+  short: string;
+  long?: string;
+}
+
 export interface IProject {
   _id?: string;
   name: string;
   description?: string;
-  members?: string[];
+  members: string[];
+  languages: IProjectLanguage[];
+  languagesOrder: string[];
+  deletedLanguages: string[];
 
   delete?();
   create?();
+  canUserSeeSettings?(userId: string);
 }
 
 export const ProjectRoles = {
@@ -46,6 +55,19 @@ export const ValidProjectRoles = [
   ProjectRoles.guest.name
 ];
 
+const languageRegEx = /^[a-z]{2}(_[A-Z]{2})?$/;
+
+const ProjectLanguageSchema = new SimpleSchema({
+  short: {
+    type: String,
+    regEx: languageRegEx
+  },
+  long: {
+    type: String,
+    optional: true
+  }
+});
+
 export const ProjectSchema = new SimpleSchema<IProject>({
   _id: {
     type: String,
@@ -73,6 +95,30 @@ export const ProjectSchema = new SimpleSchema<IProject>({
     label: 'Member-Id',
     min: 1,
     max: 50,
+    denyUpdate: true
+  },
+  languages: {
+    type: [ProjectLanguageSchema],
+    label: 'Languages'
+  },
+  languagesOrder: {
+    type: [String],
+    label: 'Language Order'
+  },
+  'languagesOrder.$': {
+    type: String,
+    label: 'Ordered Language',
+    regEx: languageRegEx,
+    denyUpdate: true
+  },
+  deletedLanguages: {
+    type: [String],
+    label: 'List of Deleted Languages'
+  },
+  'deletedLanguages.$': {
+    type: String,
+    label: 'Deleted Language',
+    regEx: languageRegEx,
     denyUpdate: true
   }
 });

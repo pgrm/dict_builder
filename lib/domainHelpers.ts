@@ -36,6 +36,7 @@ export class ServerMethodHelper extends TypeChecksHelper {
   }
 
   registerServerMethod() {
+    if (Meteor.isClient && this.isServerOnlyMethod()) { return; }
     let serverMethod = {};
 
     serverMethod[this.serverMethodName] = this.getDescriptor().value;
@@ -77,6 +78,13 @@ export class ServerMethodHelper extends TypeChecksHelper {
         return Meteor.apply(serverMethodName, args);
       }
     };
+  }
+
+  private isServerOnlyMethod(): boolean {
+    const metadataKey = 'security:serverOnly';
+    const targetKey = this.methodName;
+
+    return Reflect.getMetadata(metadataKey, this.target, targetKey);
   }
 
   private getServerMethodName(): string {

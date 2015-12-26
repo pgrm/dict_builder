@@ -83,3 +83,16 @@ export function RoleRequired(
   errorMsg?: IErrorMsg): MethodDecorator {
   return aop(() => new RoleRequiredHelper(roles, group, groupNamePrefix, errorMsg));
 }
+
+export function ServerOnly(): MethodDecorator {
+  return (
+    target: Object,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<Function>) => {
+    const metadataKey = 'security:serverOnly';
+    const metadataValue = true;
+    const targetKey = propertyKey;
+
+    Reflect.defineMetadata(metadataKey, metadataValue, target, targetKey);
+  };
+}

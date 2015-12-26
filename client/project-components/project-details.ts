@@ -40,6 +40,14 @@ export class ProjectDetails extends LoggedInComponent {
     }, true);
   }
 
+  public get canSeeSettings(): boolean {
+    if (this.project) {
+      return this.project.canUserSeeSettings(Meteor.userId());
+    } else {
+      return false;
+    }
+  }
+
   public delete(project: IProject) {
     Projects.remove(project._id);
   }
