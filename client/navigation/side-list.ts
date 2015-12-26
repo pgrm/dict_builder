@@ -22,12 +22,9 @@ export class SideList extends MeteorComponent {
 
   constructor() {
     super();
-    // this.subscribe('projects').then(() => {
-    //   this.projects = Projects.find({}, { sort: { name: 1 } });
-    // });
-    this.subscribe('projects', () => {
-      this.projects = Projects.find({}, { sort: { name: 1 } });
-    }, true);
+
+    this.subscribe('projects');
+    this.projects = Projects.find({}, { sort: { name: 1 } });
 
     this.autorun(() => {
       // because Meteor.userId is reactive,

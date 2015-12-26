@@ -25,13 +25,8 @@ export class ProjectsList extends LoggedInComponent {
 
     navHeader.title = 'Projects';
 
-    // this.subscribe('projects').then(() => {
-    //   this.projects = Projects.find({}, { sort: { name: 1 } });
-    // });
-
-    this.subscribe('projects', () => {
-      this.projects = Projects.find({}, { sort: { name: 1 } });
-    }, true);
+    this.subscribe('projects');
+    this.projects = Projects.find({}, { sort: { name: 1 } });
   }
 
   public create() {
