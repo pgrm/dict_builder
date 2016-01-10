@@ -14,46 +14,17 @@ export interface IProject {
   languagesOrder: string[];
   deletedLanguages: string[];
 
+  canSeeSetting?: boolean;
+
   delete?();
   create?();
-  canUserSeeSettings?(userId: string);
 }
 
-export const ProjectRoles = {
-  admin: {
-    name: 'admin',
-    title: 'Administrator',
-    description: 'Has all the permissions for this project.'
-  },
-  translator: {
-    name: 'translator',
-    title: 'Translator',
-    description: 'Additionally to a contributor, can confirm translations.'
-  },
-  contributor: {
-    name: 'contributor',
-    title: 'Contributor',
-    description: 'Can add new strings for translation and suggest new translations.'
-  },
-  guest: {
-    name: 'guest',
-    title: 'Guest',
-    description: 'Only has read-only permissions.'
-  }
+export const ProjectPermissions = {
+  canEdit: 'edit',
+  canEditProject: 'editProject',
+  isOwner: 'owner'
 };
-
-export const ProjectContributorRoles = [
-  ProjectRoles.admin.name, ProjectRoles.translator.name, ProjectRoles.contributor.name
-];
-
-export const ProjectTranslatorRoles = [ProjectRoles.admin.name, ProjectRoles.translator.name];
-
-export const ValidProjectRoles = [
-  ProjectRoles.admin.name,
-  ProjectRoles.translator.name,
-  ProjectRoles.contributor.name,
-  ProjectRoles.guest.name
-];
 
 const languageRegEx = /^[a-z]{2}(_[A-Z]{2})?$/;
 

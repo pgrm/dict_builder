@@ -1,0 +1,12 @@
+<div class="mdl-tabs is-upgraded">
+  <div class="mdl-tabs__tab-bar">
+    <a [routerLink]="['./Translations']" class="mdl-tabs__tab">Translations</a>
+    <a [routerLink]="['./Settings']" class="mdl-tabs__tab">Settings</a>
+    <!--<a href="#translations-panel" class="mdl-tabs__tab is-active">Translations</a>
+      <a href="#settings-panel" class="mdl-tabs__tab">Settings</a>-->
+  </div>
+
+  <div class="mdl-tabs__panel is-active">
+    <router-outlet></router-outlet>
+  </div>
+</div>

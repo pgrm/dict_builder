@@ -3,13 +3,13 @@
 import {aop, AOPBase} from 'lib/aopBase';
 
 export interface IErrorMsg {
-  errorMsg?: string | number;
+  title?: string | number;
   reason?: string;
   details?: string;
 }
 
 export class LoginRequiredHelper extends AOPBase {
-  private static DEFAULT_ERROR: IErrorMsg = { errorMsg: 401 };
+  private static DEFAULT_ERROR: IErrorMsg = { title: 401 };
 
   private errorMsg: IErrorMsg;
 
@@ -19,56 +19,115 @@ export class LoginRequiredHelper extends AOPBase {
   }
 
   protected getBeforeMethod(): Function {
-    const error = this.errorMsg;
-
-    return function() {
+    return () => {
       if (!Meteor.userId()) {
-        throw new Meteor.Error(error.errorMsg, error.reason, error.details);
+        throw new Meteor.Error(this.errorMsg.title, this.errorMsg.reason, this.errorMsg.details);
       }
     };
   }
 }
 
-export class RoleRequiredHelper extends AOPBase {
-  private static DEFAULT_ERROR: IErrorMsg = { errorMsg: 403 };
+abstract class AuthorizationRequiredHelper extends AOPBase {
+  private static DEFAULT_ERROR: IErrorMsg = { title: 403 };
 
   private errorMsg: IErrorMsg;
 
+  constructor(errorMsg?: IErrorMsg) {
+    super();
+    this.errorMsg = Object.assign({}, AuthorizationRequiredHelper.DEFAULT_ERROR, errorMsg);
+  }
+
+  protected getBeforeMethod(): Function {
+    return (...args: any[]) => {
+      if (!this.isUserAuthorized(args)) {
+        this.throwError(this.errorMsg, args);
+      }
+    };
+  }
+
+  public isUserAuthorized(args: any[]): boolean {
+    throw new Meteor.Error(500,
+      'AuthorizationRequiredHelper.isUserAuthorizedCheck is not implemented.');
+  }
+
+  protected throwError(error: IErrorMsg, args: any[]) {
+    throw new Meteor.Error(
+      error.title, error.reason || this.getDefaultErrorReason(args), error.details);
+  }
+
+  protected getDefaultErrorReason(args: any[]): string { return ''; }
+}
+
+export class RoleRequiredHelper extends AuthorizationRequiredHelper {
   constructor(
     private roles: string | string[],
     private group?: string | number, private groupNamePrefix?: string,
     errorMsg?: IErrorMsg) {
-    super();
-    this.errorMsg = Object.assign({}, RoleRequiredHelper.DEFAULT_ERROR, errorMsg);
+    super(errorMsg);
   }
 
-  protected getBeforeMethod(): Function {
-    const error = this.errorMsg;
-    const roles = this.roles;
+  public isUserAuthorized(args: any[]): boolean {
+    return Roles.userIsInRole(Meteor.userId(), this.roles, this.getGroupName(args));
+  }
+
+  protected getDefaultErrorReason(args: any[]): string {
+    return 'You don\'t have the necessary permissions, ' +
+      `${this.roles} in the group ${this.getGroupName(args)}`;
+  }
+
+  private getGroupName(args: any[]): string {
     const group = this.group;
-    const groupNamePrefix = this.groupNamePrefix || '';
-    let groupName: string;
-    let groupIndex: number;
 
     if (typeof group === 'string') {
-      groupName = group;
+      return group;
     } else {
-      groupIndex = group;
+      return (this.groupNamePrefix || '') + args[group];
     }
+  }
+}
 
-    return function(...args) {
-      if (groupIndex >= 0) {
-        groupName = (groupNamePrefix + args[groupIndex]);
-      }
+export enum PermissionsCheckFunction { All, Any }
 
-      if (!Roles.userIsInRole(Meteor.userId(), roles, groupName)) {
-        throw new Meteor.Error(
-          error.errorMsg,
-          (error.reason ||
-            `You don't have the necessary permissions ${roles} on the group ${groupName}`),
-          error.details);
+export class PermissionsRequiredHelper extends AuthorizationRequiredHelper {
+  constructor(private anyOfAllPermissions: string[][], errorMsg?: IErrorMsg) {
+    super(errorMsg);
+  }
+
+  public isUserAuthorized(): boolean {
+    for (let allPermissionsRequired of this.anyOfAllPermissions) {
+      if (PermissionsRequiredHelper.userHasAllPermissions(allPermissionsRequired)) {
+        return true;
       }
-    };
+    } // else
+    return false;
+  }
+
+  protected getDefaultErrorReason(): string {
+    const strPermissions =
+      this.anyOfAllPermissions.map(allRequired => allRequired.join(' and ')).join('; or: ');
+
+    return `You don't have any of these possible and required permissions: [${strPermissions}]`;
+  }
+
+  public static userHasAllPermissions(permissions: string[]): boolean {
+    const usersPermissions = PermissionsRequiredHelper.getUsersPermissions();
+
+    for (let perm of permissions) {
+      if (!_.contains(usersPermissions, perm)) {
+        return false;
+      }
+    } // else
+    return true;
+  }
+
+  public static getUsersPermissions(): string[] {
+    const user = Meteor.user();
+
+    if (user && user.services && user.services.sandstorm) {
+      return user.services.sandstorm.permissions;
+    } else {
+      return undefined;
+    }
   }
 }
 
@@ -82,6 +141,26 @@ export function RoleRequired(
   groupNamePrefix?: string,
   errorMsg?: IErrorMsg): MethodDecorator {
   return aop(() => new RoleRequiredHelper(roles, group, groupNamePrefix, errorMsg));
+}
+
+export function PermissionRequired(permission: string, errorMsg?: IErrorMsg): MethodDecorator {
+  return AnyPermissionsRequired([permission], errorMsg);
+}
+
+export function AnyPermissionsRequired(
+  permissions: string[], errorMsg?: IErrorMsg): MethodDecorator {
+  const anyOfAllPermissions = permissions.map(p => [p]);
+  return PermissionsRequired(anyOfAllPermissions);
+}
+
+export function AllPermissionsRequired(
+  permissions: string[], errorMsg?: IErrorMsg): MethodDecorator {
+  return PermissionsRequired([permissions], errorMsg);
+}
+
+export function PermissionsRequired(
+  anyOfAllPermissions: string[][], errorMsg?: IErrorMsg): MethodDecorator {
+  return aop(() => new PermissionsRequiredHelper(anyOfAllPermissions, errorMsg));
 }
 
 export function ServerOnly(): MethodDecorator {

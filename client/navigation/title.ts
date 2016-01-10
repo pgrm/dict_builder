@@ -4,8 +4,10 @@ import {Component, View, Injectable} from 'angular2/core';
 import {NgIf} from 'angular2/common';
 import {Title} from 'angular2/platform/browser';
 
+const appName = 'Dict Builder';
+
 @Injectable()
-export class NavHeaderService {
+export class MyTitleService {
   private _title: string;
   public showSearch: boolean;
 
@@ -15,27 +17,32 @@ export class NavHeaderService {
 
   public set title(val: string) {
     this._title = val;
-    this.titleService.setTitle(`Dict Builder - ${val}`);
+
+    let windowTitle = appName;
+
+    if (val) {
+      windowTitle += ` - ${val}`;
+    }
+    this.titleService.setTitle(windowTitle);
   }
 
   constructor(private titleService: Title) {}
 }
 
 @Component({
-  selector: 'nav-header'
+  selector: 'myTitle'
 })
 @View({
-  templateUrl: '/client/navigation/nav-header.html',
+  template: '{{title}}',
   directives: [NgIf]
 })
-export class NavHeader {
-  // private service: NavHeaderService = new NavHeaderService();
+export class MyTitle {
   public get title(): string {
-    return this.service.title || 'Home';
+    return this.service.title || appName;
   }
   public get showSearch(): boolean {
     return this.service.showSearch;
   }
 
-  constructor(private service: NavHeaderService) {}
+  constructor(private service: MyTitleService) {}
 }

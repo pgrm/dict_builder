@@ -1,24 +1,14 @@
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-  <header class="mdl-layout__header">
-    <div class="mdl-layout__header-row">
-      <nav-header></nav-header>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header is-casting-shadow">
+    <div class="mdl-layout__header-row" style="padding-left:40px">
+      <span class="mdl-layout-title"><myTitle></myTitle></span>
+      <div class="mdl-layout-spacer"></div>
+      <nav class="mdl-navigation">
+      </nav>
     </div>
   </header>
-  <div class="mdl-layout__drawer">
-    <header class="drawer-header">
-      <img gravatar src="images/user.jpg" class="avatar">
-      <accounts-ui></accounts-ui>
-    </header>
-    <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" [routerLink]="['/Home']"><i class="material-icons" role="presentation">home</i>Home</a>
-      <side-list></side-list>
-      <div class="mdl-layout-spacer"></div>
-      <a class="mdl-navigation__link" [routerLink]="['/About']"><i class="material-icons" role="presentation">help</i>About + FAQ</a>
-    </nav>
-  </div>
   <main class="mdl-layout__content">
     <div class="page-content">
-      <!-- Your content goes here -->
       <router-outlet></router-outlet>
     </div>
   </main>

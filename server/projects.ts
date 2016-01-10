@@ -1,23 +1,17 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 import {Projects, NewProject} from 'models/projects';
+import {} from 'models/translations';
 export * from 'models/projects';
 
 Meteor.publish('projects', function() {
-  let me = <Subscription>this;
-  let condition = { members: me.userId };
-  return Projects.find(condition);
+  return Projects.find({});
 });
 
 Meteor.publish('project', function(projectId: string) {
   check(projectId, String);
-  let me = <Subscription>this;
 
-  if (_.contains(Roles.getGroupsForUser(me.userId), `_${projectId}`)) {
-    return Projects.find(projectId);
-  } else {
-    throw new Meteor.Error(403);
-  }
+  return Projects.find(projectId);
 });
 
 function createDemoProject() {

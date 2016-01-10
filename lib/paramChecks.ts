@@ -31,15 +31,15 @@ export abstract class TypeChecksHelper extends AOPBase {
   protected getBeforeMethod(): Function {
     const paramChecks = this.getParamChecks();
 
-    return function() {
+    return (...args: any[]) => {
       for (let i = 0; i < paramChecks.length; i++) {
-        if (i >= arguments.length) {
+        if (i >= args.length) {
           throw new Match.Error(
-            `Found ${arguments.length} arguments, expected at least ${paramChecks.length}`);
+            `Found ${args.length} arguments, expected at least ${paramChecks.length}`);
         }
         // else
         if (paramChecks[i]) {
-          paramChecks[i](arguments[i]);
+          paramChecks[i](args[i]);
         }
       }
     };
@@ -56,11 +56,11 @@ export abstract class TypeChecksHelper extends AOPBase {
   }
 
   private getParamCheck(type: any, index: number): Function {
-    let paramCheck = this.getCustomValidation(index);
+    const paramCheck = this.getCustomValidation(index);
 
     if (paramCheck) {
       if (paramCheck.checkAny) {
-        return function(val) {
+        return (val) => {
           // go through all patterns, the first one which fits can exit the function
           for (let pattern of paramCheck.validation) {
             if (Match.test(val, pattern)) { return true; }
@@ -69,7 +69,7 @@ export abstract class TypeChecksHelper extends AOPBase {
           throw new Match.Error(paramCheck.errorMsg);
         };
       } else {
-        return function(val) { check(val, paramCheck.validation); };
+        return (val) => { check(val, paramCheck.validation); };
       }
     } else {
       return this.getDefaultValidation(type);
@@ -93,12 +93,12 @@ export abstract class TypeChecksHelper extends AOPBase {
 
   private getDefaultValidation(type: any): Function {
     if (type === Array) {
-      return function(val) { check(val, [Match.Any]); };
+      type = [Match.Any];
     } else if (type === Object) {
-      return function(val) { check(val, Match.Any); };
-    } else {
-      return function(val) { check(val, type); };
+      type = Match.Any;
     }
+
+    return (val) => { check(val, type); };
   }
 
   private getParamTypes(): any[] {

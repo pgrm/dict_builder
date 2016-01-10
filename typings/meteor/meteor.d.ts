@@ -41,9 +41,17 @@ declare module Meteor {
 		username?:string;
 		emails?:Meteor.UserEmail[];
 		createdAt?: Date;
-		profile?: any;
-		services?: any;
+		profile?: UserProfile;
+		services?: UserServices;
 	}
+
+  interface UserProfile {
+    [key: string]: any;
+  }
+
+  interface UserServices {
+    [key: string]: any;
+  }
 
 	enum StatusEnum {
 		connected,

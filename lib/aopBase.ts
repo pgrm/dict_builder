@@ -1,10 +1,10 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 export function aop<T extends AOPBase>(constructor: () => T): MethodDecorator {
-  return function (
+  return (
     target: Object,
     methodName: string,
-    descriptor: TypedPropertyDescriptor<Function>) {
+    descriptor: TypedPropertyDescriptor<Function>) => {
     let tmp = constructor();
     tmp.initialize(target, methodName, descriptor);
     return tmp.getDescriptor();

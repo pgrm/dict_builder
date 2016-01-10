@@ -15,50 +15,54 @@ standard-minifiers      # JS/CSS minifiers run for production mode
 es5-shim                # ECMAScript 5 compatibility for older browsers.
 ecmascript              # Enable ECMAScript2015+ syntax in app code
 
-email
-accounts-password
-accounts-facebook
-accounts-google
-accounts-twitter
-accounts-github
-alanning:roles
+urigo:angular2-meteor
+accounts-base
+kenton:accounts-sandstorm
+jacksingleton:accounts-sandstorm-dev
+
+# Doesn't work with sandstorm, useful for standalone version BEGIN ->
+#browser-policy  # TODO: this should be fixed to work later on
+#meteorhacks:kadira
+#email
+#accounts-password
+#accounts-facebook
+#accounts-google
+#accounts-twitter
+#accounts-github
+#barbatus:ng2-meteor-accounts
+#barbatus:ng2-meteor-accounts-ui
+#alanning:roles
+#force-ssl
+#appcache
+#webapp
+#ground:db
+# <- Doesn't work with sandstorm END
+
 aldeed:collection2
 aldeed:simple-schema
-ongoworks:security
 tmeasday:publish-counts
-urigo:angular2-meteor
-barbatus:ng2-meteor-accounts
-barbatus:ng2-meteor-accounts-ui
-zodiase:mdl
 jparker:gravatar
 fourseven:scss
 matb33:collection-hooks
 promise
 meteorhacks:npm
 
-
 npm-container
 check
 ejson
-#browser-policy  # TODO: this should be fixed to work later on
 underscore
-force-ssl
-meteorhacks:kadira
-appcache
-webapp
-ground:db
 random
 
-
-constellation:console
-constellation:subscriptions
-constellation:autopublish
-constellation:session
-constellation:tiny
-constellation:position
-constellation:schema
-constellation:plugins
-constellation:dump-restore
-fermuch:stats.js
-lai:ddp-inspector
-fourquet:anti-gravity
+#constellation:console
+#constellation:subscriptions
+#constellation:autopublish
+#constellation:session
+#constellation:tiny
+#constellation:position
+#constellation:schema
+#constellation:plugins
+#constellation:dump-restore
+#fermuch:stats.js
+#lai:ddp-inspector
+#fourquet:anti-gravity
+zodiase:mdl

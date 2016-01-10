@@ -13,5 +13,5 @@
 /// <reference path="custom/meteorhacks-npm.d.ts" />
 /// <reference path="custom/pollyfills.d.ts" />
 /// <reference path="custom/reflect-metadata.d.ts" />
+/// <reference path="custom/sandstorm.d.ts" />
 /// <reference path="underscore/underscore.d.ts" />
-

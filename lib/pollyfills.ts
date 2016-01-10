@@ -1,6 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-
 export function pollyfillObjectAssign() {
   if (!Object.assign) {
     Object.defineProperty(Object, 'assign', {

@@ -6,10 +6,10 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "es6-promise/es6-promise.d.ts": {
-      "commit": "16134c168d021351acb1673ee9659644fc58c424"
+      "commit": "b4646ff708f39d2896bcb3e3974667f92e26c5a4"
     },
     "underscore/underscore.d.ts": {
-      "commit": "fa04c80f4a889613b96cb4f283848c61a9f64233"
+      "commit": "b4646ff708f39d2896bcb3e3974667f92e26c5a4"
     }
   }
 }

@@ -4,7 +4,7 @@ import {TypeChecksHelper} from 'lib/paramChecks';
 import {ServerMethodsBase} from 'lib/baseClasses';
 
 export function getTransformFunction(constructor: new () => any) {
-  return function(item: any) {
+  return (item: any) => {
     let ret = new constructor();
 
     Object.assign(ret, item);
@@ -92,7 +92,7 @@ export class ServerMethodHelper extends TypeChecksHelper {
   }
 
   private isGroundDbInstalled(): boolean {
-    return (!!Ground && !!Ground.methodResume);
+    return ((typeof Ground !== 'undefined') && !!Ground.methodResume);
   }
 }
 

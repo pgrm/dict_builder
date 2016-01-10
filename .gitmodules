@@ -1,0 +1,3 @@
+[submodule "packages/meteor-mdl"]
+	path = packages/meteor-mdl
+	url = https://github.com/Zodiase/meteor-mdl
