@@ -1,10 +1,16 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
+export interface IAuthorTimestamp {
+  authorId: string;
+  timeStamp: Date;
+}
+
 export interface ITranslation {
   _id?: string;
-  name: string;
-  description?: string;
-  members?: string[];
+  texts: string[];
+  tags: string[];
+  created: IAuthorTimestamp;
+  lastModified: IAuthorTimestamp;
 
   delete?();
   create?();

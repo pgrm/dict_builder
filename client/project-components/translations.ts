@@ -8,7 +8,7 @@ import {MeteorComponent} from 'angular2-meteor';
   selector: 'projects-translations'
 })
 @View({
-  template: '<h1>Translations</h1>'
+  templateUrl: '/client/project-components/translations.html'
 })
 @CanActivate(() => {
   return true;

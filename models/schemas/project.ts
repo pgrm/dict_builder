@@ -10,6 +10,7 @@ export interface IProject {
   name: string;
   description?: string;
   members: string[];
+  defaultLanguageIndex: number;
   languages: IProjectLanguage[];
   languagesOrder: string[];
   deletedLanguages: string[];
@@ -67,6 +68,11 @@ export const ProjectSchema = new SimpleSchema<IProject>({
     min: 1,
     max: 50,
     denyUpdate: true
+  },
+  defaultLanguageIndex: {
+    type: Number,
+    label: 'Default Language Index',
+    min: 0
   },
   languages: {
     type: [ProjectLanguageSchema],
