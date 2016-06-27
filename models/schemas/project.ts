@@ -72,11 +72,13 @@ export const ProjectSchema = new SimpleSchema<IProject>({
   defaultLanguageIndex: {
     type: Number,
     label: 'Default Language Index',
-    min: 0
+    min: 0,
+    defaultValue: 0
   },
   languages: {
     type: [ProjectLanguageSchema],
-    label: 'Languages'
+    label: 'Languages',
+    minCount: 2
   },
   languagesOrder: {
     type: [String],

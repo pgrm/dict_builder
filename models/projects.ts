@@ -15,6 +15,7 @@ class Project implements Schema.IProject {
   members: string[];
   languages: Schema.IProjectLanguage[];
   languagesOrder: string[];
+  defaultLanguageIndex: number;
   deletedLanguages: string[];
 
   public get canSeeSettings(): boolean {

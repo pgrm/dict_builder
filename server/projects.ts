@@ -10,7 +10,6 @@ Meteor.publish('projects', function() {
 
 Meteor.publish('project', function(projectId: string) {
   check(projectId, String);
-
   return Projects.find(projectId);
 });
 
